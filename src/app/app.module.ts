@@ -10,6 +10,7 @@ import { MatFormFieldModule } from '@angular/material';
 import { MatInputModule } from '@angular/material';
 import { MatCheckboxModule } from '@angular/material';
 import { MatSelectModule } from '@angular/material';
+import { MatSliderModule } from '@angular/material';
 import { MatSlideToggleModule } from '@angular/material';
 import { MatProgressSpinnerModule } from '@angular/material';
 import { NgModule } from '@angular/core';
@@ -69,6 +70,7 @@ import { baseURL } from './shared/baseurl';
     MatInputModule,
     MatCheckboxModule,
     MatSelectModule,
+    MatSliderModule,
     MatSlideToggleModule,
     MatProgressSpinnerModule
   ],
