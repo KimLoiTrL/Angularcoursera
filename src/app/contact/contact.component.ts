@@ -1,7 +1,10 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
+import { Params, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Feedback, ContactType } from '../shared/feedback';
-import { flyInOut } from '../animations/app.animation';
+import { flyInOut, visibility } from '../animations/app.animation';
+import { FeedbackService } from '../services/feedback.service';
+import { switchMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-contact',
@@ -12,14 +15,20 @@ import { flyInOut } from '../animations/app.animation';
     'style': 'display: block;'
   },
   animations: [
-    flyInOut()
+    flyInOut(),
+    visibility()
   ]
 })
 export class ContactComponent implements OnInit {
 
   feedbackForm: FormGroup;
+  errMess: string;
   feedback: Feedback;
+  feedbackcopy: Feedback;
+  visibility = 'hidden';
   contactType = ContactType;
+  waitingForResponse = false;
+  isHidden = false;
   @ViewChild('fform') feedbackFormDirective;
 
   formErrors = {
@@ -50,11 +59,17 @@ export class ContactComponent implements OnInit {
     },
   };
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private route: ActivatedRoute,
+    private feedbackservice: FeedbackService,
+    private fb: FormBuilder) {
     this.createForm();
   }
 
   ngOnInit() {
+    // this.route.params.pipe(switchMap((params: Params) => {this.visibility = 'hidden'; return this.feedbackservice.submitFeedback(); }))
+    // .subscribe(feedback => { this.feedback = feedback; this.feedbackcopy = feedback; this.visibility = 'show'; },
+    //   errmess => this.errMess = <any>errmess);
   }
 
   createForm() {
@@ -96,17 +111,36 @@ export class ContactComponent implements OnInit {
   }
 
   onSubmit() {
+    this.waitingForResponse = true;
+    this.isHidden = true
     this.feedback = this.feedbackForm.value;
     console.log(this.feedback);
+    // this.feedbackcopy.push(this.feedback);
+    // this.feedbackservice.addFeedback(this.feedbackcopy)
+    //   .subscribe(feedback => {
+    //     this.feedback = feedback; this.feedbackcopy = feedback;
+    //   },
+    //   errmess => { this.feedback = null; this.feedbackcopy = null; this.errMess = <any>errmess; });
+    this.feedbackservice.submitFeedback(this.feedback)
+      .subscribe(feedbackResponse => {
+        this.waitingForResponse = false;
+        this.feedback = feedbackResponse;
+        this.visibility = 'shown';
+        setTimeout(() => {
+          this.visibility = 'hidden';
+          this.isHidden = false;
+        }, 5000)
+
+      });
+    this.feedbackFormDirective.resetForm();
     this.feedbackForm.reset({
       firstname: '',
       lastname: '',
-      telnum: '0',
+      telnum: 0,
+      email: '',
       agree: false,
       contacttype: 'None',
       message: ''
     });
-    this.feedbackFormDirective.resetForm();
   }
-
 }

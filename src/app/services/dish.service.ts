@@ -20,7 +20,7 @@ export class DishService {
   getDishes(): Observable<Dish[]>{
     // return of(DISHES).pipe(delay(2000));
     return this.http.get<Dish[]>(baseURL + 'dishes')
-      .pipe(catchError(this.processHTTPMsgService.handleError));;
+      .pipe(catchError(this.processHTTPMsgService.handleError));
   }
 
   getDish(id: String): Observable<Dish>{
